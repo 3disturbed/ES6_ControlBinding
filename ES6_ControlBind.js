@@ -28,6 +28,7 @@ export default class InputManager {
             }
         } else {
             const callback = this.bindings.get(event.key.toLowerCase());
+
             if (callback) callback();
         }
     }
@@ -63,14 +64,36 @@ export default class InputManager {
             gamepad.axes.forEach((value, index) => {
                 const callback = this.bindings.get(`gamepad_axis_${index}`);
                 if (callback && Math.abs(value) > 0.1) {
-                    callback({ axisIndex: index, value });
+                    
+                    callback( { gamepad: gamepad, axisIndex: index, value: value } );
                 }
             });
         }
 
         requestAnimationFrame(this.pollGamepad);
     }
+    async bind(key, callback, isAxis = false) {
+        if (this.bindings.has(key)) {
+            console.warn(`Key '${key}' is already bound.`);
+            return;
+        }
 
+        this.bindings.set(key, callback);
+        console.log(`Key '${key}' is now bound.`);
+
+        if (isAxis) {
+            return new Promise((resolve) => {
+                const axisListener = (event) => {
+                    if (event.axisIndex === isAxis) {
+                        resolve();
+                        this.unbind(key);
+                    }
+                };
+                this.rebind(axisListener, true);
+            });
+        }
+        
+    }
     async rebind(callback, isAxis = false) {
         if (this.isListening) {
             console.log("Already waiting for input. Please press a key or gamepad input.");
