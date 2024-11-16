@@ -1,7 +1,7 @@
 # ES6_ControlBinding
 
 ```
-import InputManager from './InputManager.js';
+import InputManager from 'https://3disturbed.github.io/ES6_ControlBinding/ES6_ControlBind.js';
 
 const inputManager = new InputManager();
 
